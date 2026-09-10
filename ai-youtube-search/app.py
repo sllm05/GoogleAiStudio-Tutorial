@@ -9,6 +9,7 @@ import uvicorn
 from services.audio_downloader import download_youtube_audio, extract_video_id
 from services.gemini_stt import transcribe_with_gemini_35
 from services.gemini_chat import answer_question, search_timestamp_by_query
+from services.csv_storage import get_cached_transcript, save_transcript_to_csv
 
 app = FastAPI(title="AI YouTube Search & Assistant")
 
@@ -50,24 +51,41 @@ async def analyze_video(req: AnalyzeRequest):
     if not video_id:
         raise HTTPException(status_code=400, detail="올바른 유튜브 링크를 인식할 수 없습니다.")
 
+    # 1. 과거 저장된 CSV 캐시 확인
+    cached_data = get_cached_transcript(video_id=video_id, url=url)
+    if cached_data:
+        print(f"[Cache Hit] CSV에 저장된 트랜스크립트를 불러옵니다: {video_id}")
+        return {
+            "success": True,
+            **cached_data
+        }
+
     try:
-        # 1. 오디오 다운로드
+        # 2. 캐시가 없는 경우: 신규 오디오 다운로드
+        print(f"[New Video] 신규 음원 다운로드 및 전사 시작: {video_id}")
         download_res = download_youtube_audio(url, DOWNLOADS_DIR)
         audio_path = download_res["audio_path"]
 
-        # 2. Gemini 3.5 Transcribe STT
+        # 3. Gemini 3.5 Transcribe STT
         stt_res = transcribe_with_gemini_35(audio_path)
 
-        return {
+        result_data = {
             "success": True,
             "video_id": download_res["video_id"],
+            "url": url,
             "title": download_res["title"],
             "uploader": download_res["uploader"],
             "thumbnail": download_res["thumbnail"],
             "duration": download_res["duration"],
             "audio_filename": download_res["audio_filename"],
             "transcription": stt_res,
+            "from_cache": False,
         }
+
+        # 4. CSV 파일에 저장
+        save_transcript_to_csv(result_data)
+
+        return result_data
     except Exception as e:
         import traceback
         traceback.print_exc()

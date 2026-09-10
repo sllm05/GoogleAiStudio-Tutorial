@@ -16,9 +16,12 @@
 3. **Gemini 3.5 Transcribe STT**:
    - `yt-dlp` 및 `imageio-ffmpeg`로 고음질 오디오(MP3) 추출
    - `gemini-3.5-transcribe` 모델의 정밀 단어 타임스탬프(`word_timestamp=True`) 기반 전사
-4. **내용 검색 & 즉시 영상 이동 (Seek & Play)**:
+4. **CSV 기반 자동 저장 및 캐싱 (신규)**:
+   - 처음 입력된 유튜브 링크는 추출 후 `data/transcripts.csv` 파일에 영구 저장됩니다.
+   - 동일한 유튜브 링크가 다시 입력되면, 재다운로드 및 API 호출 없이 **CSV에서 즉시 캐시된 트랜스크립트를 로드**하여 속도와 API 비용을 획기적으로 절감합니다 (`utf-8-sig` 인코딩 적용으로 엑셀에서도 한글이 완벽 호환).
+5. **내용 검색 & 즉시 영상 이동 (Seek & Play)**:
    - 영상에서 특정 키워드나 주제를 검색하면 가장 적합한 발언 시간대를 찾고, 해당 위치로 **비디오가 즉시 이동(`seekTo`)하여 자동 재생**
-5. **Gemini 3.8 Flash 영상 질의응답 (Q&A)**:
+6. **Gemini 3.8 Flash 영상 질의응답 (Q&A)**:
    - 추출된 자막을 바탕으로 `gemini-3.8-flash` 모델이 사용자의 질문에 정확히 답변
    - 답변 내에 발화 시점 타임스탬프(`[MM:SS]`)가 버튼으로 포함되어, 클릭 시 해당 구간으로 즉시 점프 가능
 
@@ -32,10 +35,13 @@ ai-youtube-search/
 ├── requirements.txt               # 의존성 목록
 ├── run.bat                        # 원클릭 실행 배치 파일
 ├── README.md                      # 프로젝트 설명서
+├── data/
+│   └── transcripts.csv            # 추출된 영상 및 트랜스크립트 영구 저장소
 ├── services/
 │   ├── audio_downloader.py        # 유튜브 오디오 다운로더 및 비디오 ID 추출
 │   ├── gemini_stt.py              # Gemini 3.5 Transcribe 기반 자막/타임스탬프 추출
-│   └── gemini_chat.py             # Gemini 3.8 Flash 기반 질의응답 및 시맨틱 검색
+│   ├── gemini_chat.py             # Gemini 3.8 Flash 기반 질의응답 및 시맨틱 검색
+│   └── csv_storage.py             # CSV 영구 저장 및 캐시 로드 모듈
 ├── static/
 │   └── downloads/                 # 추출된 오디오 파일 임시 저장소
 └── templates/
