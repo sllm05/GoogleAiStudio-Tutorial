@@ -14,11 +14,15 @@ from services.csv_storage import get_cached_transcript, save_transcript_to_csv
 app = FastAPI(title="AI YouTube Search & Assistant")
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-DOWNLOADS_DIR = os.path.join(BASE_DIR, "static", "downloads")
+STATIC_DIR = os.path.join(BASE_DIR, "static")
+DOWNLOADS_DIR = os.path.join(STATIC_DIR, "downloads")
 TEMPLATES_DIR = os.path.join(BASE_DIR, "templates")
 
 os.makedirs(DOWNLOADS_DIR, exist_ok=True)
+os.makedirs(os.path.join(STATIC_DIR, "css"), exist_ok=True)
+os.makedirs(os.path.join(STATIC_DIR, "js"), exist_ok=True)
 
+app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
 app.mount("/downloads", StaticFiles(directory=DOWNLOADS_DIR), name="downloads")
 
 class AnalyzeRequest(BaseModel):

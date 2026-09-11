@@ -43,9 +43,13 @@ ai-youtube-search/
 │   ├── gemini_chat.py             # Gemini 3.8 Flash 기반 질의응답 및 시맨틱 검색
 │   └── csv_storage.py             # CSV 영구 저장 및 캐시 로드 모듈
 ├── static/
+│   ├── css/
+│   │   └── style.css              # 커스텀 스타일 및 폰트/스크롤바 CSS
+│   ├── js/
+│   │   └── main.js                # 플레이어 제어, 검색, AI 채팅, UI 상호작용 JS
 │   └── downloads/                 # 추출된 오디오 파일 임시 저장소
 └── templates/
-    └── index.html                 # YouTube 레이아웃 UI & IFrame 연동
+    └── index.html                 # 순수 HTML 템플릿 마크업
 ```
 
 ---
